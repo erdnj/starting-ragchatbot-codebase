@@ -118,12 +118,9 @@ Provide only the direct answer to what was asked.
                     response, messages, tool_manager
                 )
                 if not tool_executed:
-                    # Tool execution failed, return what we have
-                    return self._extract_text_from_response(response)
+                    # Tool execution failed, return error message instead of raw response
+                    return "I apologize, but I encountered an error while processing your request. Please try again."
                 rounds_completed += 1
-                print(
-                    f"Round {rounds_completed} completed, continuing with next round."
-                )
                 # Continue to next round for potential follow-up tool use
             else:
                 # No tool use or no tool_manager, return the response
@@ -155,11 +152,20 @@ Provide only the direct answer to what was asked.
             True if tools were executed successfully, False otherwise
         """
         # Add AI's response with tool use to messages
-        messages.append({"role": "assistant", "content": response.content})
+        # Only add text content, not raw tool calls
+        text_content = []
+        for content_block in response.content:
+            if hasattr(content_block, "text") and content_block.text.strip():
+                text_content.append(content_block.text)
+        
+        if text_content:
+            messages.append({"role": "assistant", "content": " ".join(text_content)})
+        else:
+            # If no text content, add a placeholder to maintain conversation flow
+            messages.append({"role": "assistant", "content": "Processing your request..."})
 
         # Execute all tool calls and collect results
         tool_results = []
-        print(response)
         for content_block in response.content:
             if content_block.type == "tool_use":
                 try:
@@ -204,9 +210,15 @@ Provide only the direct answer to what was asked.
         try:
             # Find first text content block
             for content_block in response.content:
-                if hasattr(content_block, "text"):
+                if hasattr(content_block, "text") and content_block.text.strip():
                     return content_block.text
-            # No text found
+            
+            # If no text found and response contains tool use, return a placeholder
+            # This prevents showing raw tool calls to the user
+            if hasattr(response, 'content') and any(hasattr(block, 'type') and block.type == "tool_use" for block in response.content):
+                return "Processing your request..."
+            
+            # No text found at all
             return "No text content in response"
         except Exception as e:
             return f"Error extracting response text: {str(e)}"
