@@ -26,6 +26,23 @@ uv sync
 uv add <package-name>
 ```
 
+### Code Quality
+```bash
+# Format code with black
+./scripts/format.sh
+
+# Run all quality checks (formatting, tests)
+./scripts/check.sh
+
+# Set up pre-commit hook (auto-format before commits)
+cp scripts/pre-commit.sh .git/hooks/pre-commit
+
+# Manual formatting commands
+uv run black backend/                    # Format all Python files
+uv run black backend/ --check           # Check formatting without changes
+uv run black backend/ --check --diff    # Show formatting differences
+```
+
 ### Environment Setup
 Create a `.env` file in the root directory with:
 ```

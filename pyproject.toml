@@ -18,5 +18,25 @@ dependencies = [
 dev-dependencies = [
     "pytest>=7.4.0",
     "pytest-mock>=3.11.0",
-    "pytest-asyncio>=0.21.0"
+    "pytest-asyncio>=0.21.0",
+    "black>=25.1.0",
 ]
+
+[tool.black]
+line-length = 88
+target-version = ['py313']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | chromadb_data
+)/
+'''
