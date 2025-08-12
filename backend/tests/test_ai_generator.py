@@ -1,6 +1,12 @@
 import pytest
 from unittest.mock import Mock, patch, MagicMock, call
-from backend.ai_generator import AIGenerator
+import sys
+import os
+
+# Add backend to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from ai_generator import AIGenerator
 
 
 class TestAIGenerator:
@@ -9,7 +15,7 @@ class TestAIGenerator:
     @pytest.fixture
     def ai_generator(self):
         """Create AIGenerator instance with mocked client"""
-        with patch('backend.ai_generator.anthropic.Anthropic'):
+        with patch('ai_generator.anthropic.Anthropic'):
             generator = AIGenerator(api_key="test_key", model="test-model")
             generator.client = Mock()
             return generator
